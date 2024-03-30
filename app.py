@@ -1,7 +1,7 @@
 import os
-import openai
+from openai import OpenAI
 import streamlit as st
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 
 # from streamlit_chat import message
@@ -26,8 +26,14 @@ st.caption('레고스파이크 프라임을 이용한 코드를 구성할 때 �
 
 
 # 마크다운 부가설명
-st.markdown('###### 코드가 필요한 상황, 작동 내용, 작동 조건, 입력장치, 출력장치를 각각 입력한다음 :red[코드블럭 추천받기] 버튼을 눌러주세요.:sparkles:')
+st.markdown('###### openAI key를 입력하고, 코드가 필요한 상황, 작동 내용, 작동 조건, 입력장치, 출력장치를 각각 입력한다음 :red[코드블럭 추천받기] 버튼을 눌러주세요.:sparkles:')
 
+# api key
+key = st.text_input(
+    label='openAI의 api key를 입력하세요.', 
+    placeholder='sk-...'
+)
+st.write(f'api key: :violet[{key}]')
 
 # 텍스트 입력
 situation = st.text_input(
@@ -74,8 +80,9 @@ prompt = f'user:[상황- 금고 잠그기, 작동- 모터 돌리기, 조건- 프
 button = st.button(':gift:코드블럭 추천받기')
 
 def generate_recommend(prompt):
-    completions = openai.Completion.create (
-        engine="text-davinci-003",
+    completions = client.completions.create (
+        model="gpt-3.5-turbo-instruct",
+        #engine="text-davinci-003",
         prompt=prompt,
         temperature=0,
         max_tokens=400,
@@ -84,12 +91,13 @@ def generate_recommend(prompt):
         presence_penalty=0
     )
  
-    message = completions["choices"][0]["text"].replace(",", " ]  [ ")
+    message = completions.choices[0].text.replace(",", " ]  [ ")
     return message
 
-load_dotenv()
+# load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI()
+OpenAI.api_key = key
 
 
 if button:
